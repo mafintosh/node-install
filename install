@@ -5,6 +5,7 @@ if ! which bashkit > /dev/null 2> /dev/null; then
 	printf "\n"
 fi
 BASHKIT_APP_INSTALL="bashkit install mafintosh/node-install"
+which node-install > /dev/null 2> /dev/null && BASHKIT_APP_INSTALL="bashkit update node-install"
 [ ! -O "$(bashkit dirname)/bin" ] && BASHKIT_APP_INSTALL="sudo $BASHKIT_APP_INSTALL"
 printf "\x1B[90m$BASHKIT_APP_INSTALL\x1B[39m\n"
 $BASHKIT_APP_INSTALL --colors || exit 1
