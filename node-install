@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. $(bashkit path)
+. $(which bashkit)
 
 opt --force,-f
 opt --update,-u
