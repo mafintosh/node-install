@@ -4,7 +4,7 @@ Extremely simple node install script build using [bashkit](https://github.com/ma
 
 One-line install
 
-	 curl -s https://raw.github.com/mafintosh/node-install/master/install | bash && . $(bashkit rc)
+	 curl -fs https://raw.github.com/mafintosh/node-install/master/install | bash && . $(bashkit rc)
 
 It is easy to use
 
