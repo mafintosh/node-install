@@ -46,7 +46,8 @@ cmd () {
 
 	local url=http://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
 
-	[ ! -O /usr/local/bin ] && not opt --force && error /usr/local/bin is not owned by you
+	[ ! -O /usr/local/bin ] && not opt --force && [ "$(whoami)" = "root" ] && error "you are root and do not own /usr/local/bin\nuse --force to continue"
+	[ ! -O /usr/local/bin ] && not opt --force && error "/usr/local/bin is not owned by you\nuse sudo and --force to continue"
 
 	update-versions
 	silent curl -fsI $url || error cannot find node $version
