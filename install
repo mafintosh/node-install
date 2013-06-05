@@ -9,4 +9,4 @@ which node-install > /dev/null 2> /dev/null && BASHKIT_APP_INSTALL="bashkit upda
 [ ! -O "$(bashkit dirname)/bin" ] && BASHKIT_APP_INSTALL="sudo $BASHKIT_APP_INSTALL"
 printf "\x1B[90m$BASHKIT_APP_INSTALL\x1B[39m\n"
 $BASHKIT_APP_INSTALL --colors || exit 1
-printf "\nnnode-install is now installed\n"
+printf "\nnode-install is now installed\n"
