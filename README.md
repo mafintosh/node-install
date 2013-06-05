@@ -18,4 +18,4 @@ It also features autocompletion!
 
 	node-install <tab><tab> # prints all available versions
 
-It is licensed under MIT. Happy noding!
+It is licensed under MIT
