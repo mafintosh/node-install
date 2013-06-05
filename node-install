@@ -1,0 +1,65 @@
+#!/bin/bash
+
+. $(bashkit path)
+
+opt --force,-f
+opt --update,-u
+
+update-versions () {
+	curl -s http://nodejs.org/dist/ | grep v | grep -v node- | sed 's|/</a>.*||' | sed 's/.*>v//' > $DIRNAME/versions
+}
+
+print-help () {
+	echo "usage: node-install version"
+}
+
+tab-1 () {
+	if not silent find $DIRNAME/versions -mmin -1560; then
+		update-versions
+	fi
+	cat $DIRNAME/versions
+}
+
+cmd () {
+	if opt --update; then
+		update-versions
+		return $?
+	fi
+
+	[ $# = 0 ] && print-help && exit 1
+
+	local version=$1
+	local os=
+	local arch=x86
+
+	version=${version//v/}
+
+	case "$(uname -a)" in
+		Linux*)  os=linux  ;;
+		Darwin*) os=darwin ;;
+		SunOS*)  os=sunos  ;;
+	esac
+
+	case "$(uname -a)" in
+		*x86_64*) arch=x64 ;;
+	esac
+
+	local url=http://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
+
+	[ ! -O /usr/local/bin ] && not opt --force && error /usr/local/bin is not owned by you
+
+	update-versions
+	silent curl -fsI $url || error cannot find node $version
+
+	if [ "$os" = "darwin" ]; then
+		curl -fs $url | tar xzPs '|^[^/]*/|/usr/local/|' --include '*/*/*'
+	else
+		curl -fs $url | tar xzP --xform 's|^[^/]*/|/usr/local/|' --wildcards '*/*/*'
+	fi
+
+	[ $? != 0 ] && exit 1
+
+	echo node $(node -v) is now installed
+}
+
+run
