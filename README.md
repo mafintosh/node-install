@@ -1,11 +1,8 @@
 # node-install
 
-Extremely simple node install script
-It is available through [bashkit](https://github.com/mafintosh/bashkit)
+Extremely simple node install script build using [bashkit](https://github.com/mafintosh/bashkit).
 
-	bashkit install mafintosh/node-install
-
-Or using this one-line install
+One-line install
 
 	 curl -s https://raw.github.com/mafintosh/node-install/master/install | bash && . $(bashkit rc)
 
