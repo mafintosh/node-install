@@ -5,8 +5,11 @@
 opt --force,-f
 opt --update,-u
 
+NODE_VERSIONS_CACHE=~/.node-versions
+
 update-versions () {
-	curl -s http://nodejs.org/dist/ | grep v | grep -v node- | sed 's|/</a>.*||' | sed 's/.*>v//' > $DIRNAME/versions
+	[ $EUID = 0 ] && return 0 1
+	curl -s http://nodejs.org/dist/ | grep v | grep -v node- | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
 }
 
 print-help () {
@@ -14,10 +17,10 @@ print-help () {
 }
 
 tab-1 () {
-	if not silent find $DIRNAME/versions -mmin -1560; then
+	if not silent find $NODE_VERSIONS_CACHE -mmin -1560; then
 		update-versions
 	fi
-	cat $DIRNAME/versions
+	[ -e $NODE_VERSIONS_CACHE ] && cat $NODE_VERSIONS_CACHE
 }
 
 cmd () {

@@ -1,0 +1,11 @@
+if ! which bashkit > /dev/null 2> /dev/null; then
+	printf "node-install requires bashkit which is not installed...\n\n"
+	curl -fs https://raw.github.com/mafintosh/bashkit/master/install | bash
+	[ $? != 0 ] && exit 1
+	printf "\n"
+fi
+BASHKIT_APP_INSTALL="bashkit install mafintosh/node-install"
+[ ! -O "$(bashkit dirname)/bin" ] && BASHKIT_APP_INSTALL="sudo $BASHKIT_APP_INSTALL"
+printf "\x1B[90m$BASHKIT_APP_INSTALL\x1B[39m\n"
+$BASHKIT_APP_INSTALL --colors || exit 1
+printf "\nnnode-install is now installed\n"
