@@ -21,6 +21,7 @@ tab-1 () {
 		update-versions
 	fi
 	[ -e $NODE_VERSIONS_CACHE ] && cat $NODE_VERSIONS_CACHE
+	echo latest
 }
 
 cmd () {
@@ -34,6 +35,8 @@ cmd () {
 	local version=$1
 	local os=
 	local arch=x86
+
+	[ "$version" = "latest" ] && version=$(curl -fs http://nodejs.org/dist/latest/ | grep node- | head -n1 | sed 's/.*node-v//' | sed 's/-.*//')
 
 	version=${version//v/}
 
