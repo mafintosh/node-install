@@ -9,7 +9,8 @@ NODE_VERSIONS_CACHE=~/.node-versions
 
 update-versions () {
 	[ $EUID = 0 ] && return 0 1
-	curl -s http://nodejs.org/dist/ | grep v | grep -v node- | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
+	curl -fs http://nodejs.org/dist/ | grep v | grep -v npm | grep -v node- | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
+	[ $? != 0 ] && rm $NODE_VERSIONS_CACHE
 }
 
 print-help () {
