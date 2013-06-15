@@ -5,11 +5,12 @@
 opt --force,-f
 opt --update,-u
 
-NODE_VERSIONS_CACHE=~/.cache/node-versions
+CACHE_FOLDER=~/.cache
+NODE_VERSIONS_CACHE=$CACHE_FOLDER/node-versions
 
 update-versions () {
 	[ $EUID = 0 ] && return 0 1
-	mkdir -p ~/.cache
+	mkdir -p $CACHE_FOLDER
 	curl -fs http://nodejs.org/dist/ | grep v | grep -v npm | grep -v node- | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
 	[ $? != 0 ] && rm $NODE_VERSIONS_CACHE
 }
