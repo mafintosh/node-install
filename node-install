@@ -50,7 +50,8 @@ cmd () {
 	esac
 
 	case "$(uname -a)" in
-		*x86_64*) arch=x64 ;;
+		*raspberrypi*) arch=arm-pi ;;
+		*x86_64*)      arch=x64    ;;
 	esac
 
 	local url=http://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
