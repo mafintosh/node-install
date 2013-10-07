@@ -55,17 +55,26 @@ cmd () {
 	esac
 
 	local url=http://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
+	local pkg_url=http://nodejs.org/dist/v$version/node-v$version.pkg # support older node versions
+	local pkg_tmp=/tmp/node-$version.pkg
 
 	[ ! -O /usr/local/bin ] && not opt --force && [ "$(whoami)" = "root" ] && error "you are root and do not own /usr/local/bin\nuse --force to continue"
 	[ ! -O /usr/local/bin ] && not opt --force && error "/usr/local/bin is not owned by you\nuse sudo and --force to continue"
 
 	update-versions
-	silent curl -fsI $url || error cannot find node $version
 
-	if [ "$os" = "darwin" ]; then
-		curl -fs $url | tar xzPs '|^[^/]*/|/usr/local/|' --include '*/*/*'
+	if ! silent curl -fsI $url; then
+		if [ "$os" = "darwin" ] && silent curl -fsI $pkg_url; then
+			curl -fs $pkg_url > $pkg_tmp && silent sudo installer -pkg $pkg_tmp -target / && rm -f $pkg_tmp
+		else
+			error cannot find node $version
+		fi
 	else
-		curl -fs $url | tar xzP --xform 's|^[^/]*/|/usr/local/|' --wildcards '*/*/*'
+		if [ "$os" = "darwin" ]; then
+			curl -fs $url | tar xzPs '|^[^/]*/|/usr/local/|' --include '*/*/*'
+		else
+			curl -fs $url | tar xzP --xform 's|^[^/]*/|/usr/local/|' --wildcards '*/*/*'
+		fi
 	fi
 
 	[ $? != 0 ] && exit 1
