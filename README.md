@@ -1,10 +1,10 @@
 # node-install
 
-Extremely simple node install script build using [bashkit](https://github.com/mafintosh/bashkit).
+Extremely simple node install script written in bash.
 
 One-line install
 
-	 curl -fs https://raw.github.com/mafintosh/node-install/master/install | bash && . $(bashkit rc)
+	 curl -fs https://raw.github.com/mafintosh/node-install/master/node-install > /usr/local/bin/node-install
 
 It is easy to use
 
@@ -14,6 +14,7 @@ It is easy to use
 
 It also features autocompletion!
 
+	node-install --completion --save # and follow the instructions
 	node-install <tab><tab> # prints all available versions
 
 It is licensed under MIT
