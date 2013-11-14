@@ -4,7 +4,7 @@ Extremely simple node install script written in bash.
 
 One-line install
 
-	 curl -fs https://raw.github.com/mafintosh/node-install/master/node-install > /usr/local/bin/node-install
+	curl -fso /usr/local/bin/node-install https://raw.github.com/mafintosh/node-install/master/node-install
 
 It is easy to use
 
