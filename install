@@ -1,0 +1,3 @@
+[ ! -O /usr/local/bin ] && SUDO_MAYBE=sudo
+$SUDO_MAYBE curl -fso /usr/local/bin/node-install https://raw.github.com/mafintosh/node-install/master/node-install
+$SUDO_MAYBE chmod +x /usr/local/bin/node-install
