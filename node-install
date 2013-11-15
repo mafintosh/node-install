@@ -80,6 +80,7 @@ run () {
 		local bin=$0
 		setup-completion () {
 			[ ! -d $1 ] && return 0
+			[ ! -w $1 ] && error "permission error: you do not have permission to write to $1"
 			$bin --completion > $1/node-install || exit 1
 			echo "# completion installed. run the following to activate it now"
 			echo
