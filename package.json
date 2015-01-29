@@ -1,0 +1,16 @@
+{
+  "name": "node-install",
+  "version": "0.0.0",
+  "description": "Extremely simple node install script written in bash.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/node-install"
+  },
+  "author": "Mathias Buus (@mafintosh)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mafintosh/node-install/issues"
+  },
+  "homepage": "https://github.com/mafintosh/node-install"
+}
