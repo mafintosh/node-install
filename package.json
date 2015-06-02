@@ -2,7 +2,10 @@
   "name": "node-install",
   "version": "1.0.0",
   "description": "Extremely simple node install script written in bash.",
-  "main": "index.js",
+  "main": "node-install",
+  "bin": {
+    "node-install": "./node-install"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mafintosh/node-install"
