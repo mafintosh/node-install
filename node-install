@@ -67,7 +67,7 @@ run () {
 	esac
 
 	case "$(uname -a)" in
-		*raspberrypi*) arch=arm-pi ;;
+		*raspberrypi*) arch=armv7l ;;
 		*x86_64*)      arch=x64    ;;
 	esac
 
