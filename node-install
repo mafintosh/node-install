@@ -15,7 +15,7 @@ silent () {
 update-versions () {
 	[ $EUID = 0 ] && return 1
 	mkdir -p $CACHE_FOLDER
-	curl -fs http://nodejs.org/dist/ | grep v | grep -v npm | grep -v node- | grep -v latest | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
+	curl -fs https://nodejs.org/dist/ | grep v | grep -v npm | grep -v node- | grep -v latest | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
 	[ $? != 0 ] && rm -f $NODE_VERSIONS_CACHE
 }
 
@@ -43,7 +43,7 @@ run () {
 	local save=false
 	local list=false
 
-	[ "$version" = "latest" ] && version=$(curl -fs http://nodejs.org/dist/latest/ | grep node- | head -n1 | sed 's/.*node-v//' | sed 's/-.*//')
+	[ "$version" = "latest" ] && version=$(curl -fs https://nodejs.org/dist/latest/ | grep node- | head -n1 | sed 's/.*node-v//' | sed 's/-.*//')
 
 	version=${version//v/}
 
@@ -110,8 +110,8 @@ run () {
 		exit 0
 	fi
 
-	local url=http://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
-	local pkg_url=http://nodejs.org/dist/v$version/node-v$version.pkg # support older node versions
+	local url=https://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
+	local pkg_url=https://nodejs.org/dist/v$version/node-v$version.pkg # support older node versions
 	local pkg_tmp=/tmp/node-$version.pkg
 
 	[ ! -O /usr/local/bin ] && ! $force && [ "$(whoami)" = "root" ] && error "you are root and do not own /usr/local/bin\nuse --force to continue"
