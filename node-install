@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CACHE_FOLDER=~/.cache
 NODE_VERSIONS_CACHE=$CACHE_FOLDER/node-versions
