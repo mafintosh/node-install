@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -o pipefail
+
 CACHE_FOLDER=~/.cache
 NODE_VERSIONS_CACHE=$CACHE_FOLDER/node-versions
 
@@ -17,6 +20,7 @@ update-versions () {
 	mkdir -p $CACHE_FOLDER
 	curl -fs https://nodejs.org/dist/ | grep v | grep -v npm | grep -v node- | grep -v latest | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
 	[ $? != 0 ] && rm -f $NODE_VERSIONS_CACHE
+	true
 }
 
 print-help () {
@@ -43,7 +47,9 @@ run () {
 	local save=false
 	local list=false
 
-	[ "$version" = "latest" ] && version=$(curl -fs https://nodejs.org/dist/latest/ | grep node- | head -n1 | sed 's/.*node-v//' | sed 's/-.*//')
+	if [ "$version" == "latest" ]; then
+		version=$(curl -fs https://nodejs.org/dist/latest/ | grep node- | head -n1 | sed 's/.*node-v//' | sed 's/-.*//' || true)
+	fi
 
 	version=${version//v/}
 
@@ -59,6 +65,11 @@ run () {
 			-l)           list=true ;;
 		esac
 	done
+
+	if ! $force && [ "$(node -v 2> /dev/null)" == "v$version" ]; then
+		echo node $(node -v) is now installed
+		exit 0
+	fi
 
 	case "$(uname -a)" in
 		Linux*)  os=linux  ;;
