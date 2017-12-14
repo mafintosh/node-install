@@ -10,7 +10,7 @@ It is easy to use
 
 	node-install 0.10.10 # installs node 0.10.10
 	node-install 0.8.24  # installs node 0.8.24
-	node-install latest  # installs latests stable node
+	node-install latest  # installs latest stable node
 
 It also features autocompletion!
 
