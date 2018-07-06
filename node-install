@@ -3,148 +3,125 @@
 set -e
 set -o pipefail
 
-CACHE_FOLDER=~/.cache
-NODE_VERSIONS_CACHE=$CACHE_FOLDER/node-versions
-
 error () {
-	echo "$@"
-	exit 1
+  echo "$@"
+  exit 1
 }
 
 silent () {
-	$@ > /dev/null 2> /dev/null
-}
-
-update-versions () {
-	[ $EUID = 0 ] && return 1
-	mkdir -p $CACHE_FOLDER
-	curl -fs https://nodejs.org/dist/ | grep v | grep -v npm | grep -v node- | grep -v latest | sed 's|/</a>.*||' | sed 's/.*>v//' > $NODE_VERSIONS_CACHE
-	[ $? != 0 ] && rm -f $NODE_VERSIONS_CACHE
-	true
+  $@ > /dev/null 2> /dev/null
 }
 
 print-help () {
-	echo "usage: node-install version"
+  echo "usage: node-install version"
 }
 
 list () {
-	if ! silent find $NODE_VERSIONS_CACHE -mtime -1; then
-		update-versions
-	fi
-	[ -e $NODE_VERSIONS_CACHE ] && cat $NODE_VERSIONS_CACHE
-	echo latest
+  curl -fs https://nodejs.org/dist/ | grep v | grep -v npm | grep -v node- | grep -v latest | sed 's|/</a>.*||' | sed 's/.*>v//'
+}
+
+latest () {
+  local major=$1
+  local minor=0
+  local patch=0
+
+  for v in $(list); do
+    local tmp=$IFS
+    local IFS=.
+    vs=($v)
+    IFS=$tmp
+    if [ $major -eq ${vs[0]} ]; then
+      if [ ${vs[1]} -gt $minor ] || ([ ${vs[1]} -eq $minor ] && [ ${vs[2]} -gt $patch ]); then
+        minor=${vs[1]}
+        patch=${vs[2]}
+      fi
+    fi
+  done
+
+  echo $major.$minor.$patch
 }
 
 run () {
-	[ $# = 0 ] && error "usage: node-install version"
-	[ ! -d /usr/local/bin ] && error "/usr/local/bin does not exist"
+  [ $# = 0 ] && error "usage: node-install version"
+  [ ! -d /usr/local/bin ] && error "/usr/local/bin does not exist"
 
-	local version=$1
-	local os=
-	local arch=x86
-	local force=false
-	local completion=false
-	local save=false
-	local list=false
+  local version=$1
+  local os=
+  local arch=x86
+  local force=false
+  local list=false
+  local dry_run=eval
 
-	if [ "$version" == "latest" ]; then
-		version=$(curl -fs https://nodejs.org/dist/latest/ | grep node- | head -n1 | sed 's/.*node-v//' | sed 's/-.*//' || true)
-	fi
+  if silent [ "$version" -eq "$version" ]; then
+    version=$(latest $version)
+  fi
 
-	version=${version//v/}
+  if [ "$version" == "latest" ]; then
+    version=$(curl -fs https://nodejs.org/dist/latest/ | grep node- | head -n1 | sed 's/.*node-v//' | sed 's/-.*//' || true)
+  fi
 
-	for opt in "$@"; do
-		case "$opt" in
-			--force)      force=true ;;
-			-f)           force=true ;;
-			--completion) completion=true ;;
-			-c)           completion=true ;;
-			--save)       save=true ;;
-			-s)           save=true ;;
-			--list)       list=true ;;
-			-l)           list=true ;;
-		esac
-	done
+  version=${version//v/}
 
-	if ! $force && [ "$(node -v 2> /dev/null)" == "v$version" ]; then
-		echo node $(node -v) is now installed
-		exit 0
-	fi
+  for opt in "$@"; do
+    case "$opt" in
+      --force)      force=true   ;;
+      -f)           force=true   ;;
+      --dry-run)    dry_run=echo ;;
+      -d)           dry_run=echo ;;
+      --list)       list=true    ;;
+      -l)           list=true    ;;
+    esac
+  done
 
-	case "$(uname -a)" in
-		Linux*)  os=linux  ;;
-		Darwin*) os=darwin ;;
-		SunOS*)  os=sunos  ;;
-	esac
+  if ! $force && [ "$(node -v 2> /dev/null)" == "v$version" ] && [ "$dry_run" != "echo" ]; then
+    echo node $(node -v) is now installed
+    exit 0
+  fi
 
-	case "$(uname -m)" in
-		*armv7l*) arch=armv7l ;;
-		*x86_64*) arch=x64    ;;
-	esac
+  case "$(uname -a)" in
+    Linux*)  os=linux  ;;
+    Darwin*) os=darwin ;;
+    SunOS*)  os=sunos  ;;
+  esac
 
-	if $list; then
-		list
-		return $?
-	fi
+  case "$(uname -m)" in
+    *armv7l*) arch=armv7l ;;
+    *x86_64*) arch=x64    ;;
+  esac
 
-	if $completion && $save; then
-		local bin=$0
-		setup-completion () {
-			[ ! -d $1 ] && return 0
-			[ ! -w $1 ] && error "permission error: you do not have permission to write to $1"
-			$bin --completion > $1/node-install || exit 1
-			echo "# completion installed. run the following to activate it now"
-			echo
-			echo ". $1/node-install"
-			echo
-			exit 0
-		}
+  if $list; then
+    list
+    return $?
+  fi
 
-		setup-completion /usr/local/etc/bash_completion.d
-		setup-completion /etc/bash_completion.d
-		setup-completion ~/bash_completion.d
-		setup-completion ~/.bash_completion.d
+  local url=https://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
+  local pkg_url=https://nodejs.org/dist/v$version/node-v$version.pkg # support older node versions
+  local pkg_tmp=/tmp/node-$version.pkg
 
-		error could not find bash_completion dir
-	fi
+  [ ! -O /usr/local/bin ] && ! $force && [ "$(whoami)" = "root" ] && error "you are root and do not own /usr/local/bin\nuse --force to continue"
+  [ ! -O /usr/local/bin ] && ! $force && error "you do not have permission to write to /usr/local/bin"
 
-	if $completion; then
-		_node-install () {
-			COMPREPLY=($(node-install --list | grep "^${COMP_WORDS[$COMP_CWORD]}"))
-		}
-		echo "# auto install to bash completion dir:"
-		echo "# node-install --completion --save"
-		echo
-		declare -f _node-install
-		echo
-		echo complete -F _node-install node-install
-		exit 0
-	fi
+  if ! silent curl -fsI $url; then
+    if [ "$os" = "darwin" ] && silent curl -fsI $pkg_url; then
+      $dry_run curl -fs $pkg_url \> $pkg_tmp \&\& silent sudo installer -pkg $pkg_tmp -target / && rm -f $pkg_tmp
+    else
+      error cannot find node $version
+    fi
+  else
+    if [ "$os" = "darwin" ]; then
+      $dry_run curl -fs $url \| tar xzPs \''|^[^/]*/|/usr/local/|'\' --include \''*/*/*'\'
+    else
+      $dry_run curl -fs $url \| tar xzP --xform \''s|^[^/]*/|/usr/local/|'\' --wildcards \''*/*/*'\'
+    fi
+  fi
 
-	local url=https://nodejs.org/dist/v$version/node-v$version-$os-$arch.tar.gz
-	local pkg_url=https://nodejs.org/dist/v$version/node-v$version.pkg # support older node versions
-	local pkg_tmp=/tmp/node-$version.pkg
+  if [ $? != 0 ]; then
+    exit 1
+  fi
 
-	[ ! -O /usr/local/bin ] && ! $force && [ "$(whoami)" = "root" ] && error "you are root and do not own /usr/local/bin\nuse --force to continue"
-	[ ! -O /usr/local/bin ] && ! $force && error "you do not have permission to write to /usr/local/bin"
-
-	if ! silent curl -fsI $url; then
-		if [ "$os" = "darwin" ] && silent curl -fsI $pkg_url; then
-			curl -fs $pkg_url > $pkg_tmp && silent sudo installer -pkg $pkg_tmp -target / && rm -f $pkg_tmp
-		else
-			error cannot find node $version
-		fi
-	else
-		if [ "$os" = "darwin" ]; then
-			curl -fs $url | tar xzPs '|^[^/]*/|/usr/local/|' --include '*/*/*'
-		else
-			curl -fs $url | tar xzP --xform 's|^[^/]*/|/usr/local/|' --wildcards '*/*/*'
-		fi
-	fi
-
-	[ $? != 0 ] && exit 1
-
-	echo node $(node -v) is now installed
+  if [ "$dry_run" == "eval" ]; then
+    echo node $(node -v) is now installed
+  fi
 }
 
 run "$@"
