@@ -51,6 +51,7 @@ run () {
   local force=false
   local list=false
   local dry_run=eval
+  local rm_npm=false
 
   if silent [ "$version" -eq "$version" ]; then
     version=$(latest $version)
@@ -70,6 +71,8 @@ run () {
       -d)           dry_run=echo ;;
       --list)       list=true    ;;
       -l)           list=true    ;;
+      -r)           rm_npm=true  ;;
+      --remove-npm) rm_npm=true  ;;
     esac
   done
 
@@ -100,6 +103,10 @@ run () {
 
   [ ! -O /usr/local/bin ] && ! $force && [ "$(whoami)" = "root" ] && error "you are root and do not own /usr/local/bin\nuse --force to continue"
   [ ! -O /usr/local/bin ] && ! $force && error "you do not have permission to write to /usr/local/bin"
+
+  if $rm_npm; then
+    $dry_run rm -rf /usr/local/lib/node_modules/npm
+  fi
 
   if ! silent curl -fsI $url; then
     if [ "$os" = "darwin" ] && silent curl -fsI $pkg_url; then
