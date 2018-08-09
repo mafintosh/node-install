@@ -105,6 +105,7 @@ run () {
   [ ! -O /usr/local/bin ] && ! $force && error "you do not have permission to write to /usr/local/bin"
 
   if $rm_npm; then
+    [ ! -O /usr/local/lib/node_modules/npm ] && ! $force && error "you do not have permission to delete /usr/local/lib/node_modules/npm"
     $dry_run rm -rf /usr/local/lib/node_modules/npm
   fi
 
