@@ -1,6 +1,6 @@
 {
   "name": "node-install",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Extremely simple node install script written in bash.",
   "main": "node-install",
   "bin": {
