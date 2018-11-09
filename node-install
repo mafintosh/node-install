@@ -54,7 +54,7 @@ run () {
   local rm_npm=false
 
   if silent [ "$version" -eq "$version" ]; then
-    version=$(latest $version)
+    version=$(latest $version 2>/dev/null)
   fi
 
   if [ "$version" == "latest" ]; then
