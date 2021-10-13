@@ -88,8 +88,9 @@ run () {
   esac
 
   case "$(uname -m)" in
-    *armv7l*) arch=armv7l ;;
-    *x86_64*) arch=x64    ;;
+    *armv7l*)  arch=armv7l ;;
+    *x86_64*)  arch=x64    ;;
+    *aarch64*) arch=arm64  ;;
   esac
 
   if $list; then
